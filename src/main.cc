@@ -14,7 +14,7 @@ struct block {
 struct fruit {
     block coord;
 
-    void draw(std::vector<console::Pixel> &pixels, std::size_t X, std::size_t Y) {
+    void draw(std::vector<console::Pixel> &pixels, std::size_t X, [[maybe_unused]] std::size_t Y) {
         console::grid::at_2D(pixels, coord.x, coord.y, X) = console::Pixel(fg::BRIGHT_RED, bg::BLACK, 'a');
     }
 };
@@ -62,8 +62,14 @@ struct snake {
 
         if(segments.rbegin()->x == apple.coord.x && segments.rbegin()->y == apple.coord.y){
             score += 10;
-            apple.coord.x = rand() % (X - 1);
-            apple.coord.y = rand() % (Y - 2);
+            apple.coord.x = static_cast<std::size_t>(rand()) % (X - 1);
+            apple.coord.y = static_cast<std::size_t>(rand()) % (Y - 2);
+
+            if(apple.coord.x < 11) apple.coord.x += 11;
+            if(apple.coord.x > X - 11) apple.coord.x -= 11;
+
+            if(apple.coord.y == 1) apple.coord.y += 1;
+            if(apple.coord.y == Y - 1) apple.coord.y -= 1;
         }
         else {
             segments.pop_front();
@@ -121,8 +127,8 @@ void keys(char key) {
 
             player.score = 0;
 
-            apple.coord.x = rand() % (initial_value_x-10);
-            apple.coord.y = rand() % (initial_value_y-10);
+            apple.coord.x = static_cast<std::size_t>(rand()) % (initial_value_x-10);
+            apple.coord.y = static_cast<std::size_t>(rand()) % (initial_value_y-10);
 
             dead = false;
     }
@@ -148,7 +154,7 @@ void death_screen(std::vector<console::Pixel> & pixels, std::size_t X, std::size
         );
 }
 
-void score(std::vector<console::Pixel> & pixels, std::size_t X, std::size_t Y) {
+void score(std::vector<console::Pixel> & pixels, std::size_t X, [[maybe_unused]] std::size_t Y) {
 
     console::grid::set_string (
         pixels,
@@ -166,7 +172,7 @@ void score(std::vector<console::Pixel> & pixels, std::size_t X, std::size_t Y) {
     );
 }
 
-bool init(std::vector<console::Pixel> & pixels, std::size_t X, std::size_t Y) {
+bool init([[maybe_unused]] std::vector<console::Pixel> & pixels, std::size_t X, std::size_t Y) {
     console::toggle_title();
     player.segments.push_back(block{X/2, Y/2});
 
